@@ -4,13 +4,11 @@ from pydub import AudioSegment
 
 N=int(input('合谱数量: '))
 if N<=1:
-    print(f'逗我呢？{N}个谱怎么合？')
     exit()
 
 while True:
     breaktime=float(input('请输入间隔时间, 单位秒: '))
     if breaktime>0: break
-    else: print('输个负数合牛魔')
 
 if breaktime!=0:
     breakpitch=5.006479166666667/breaktime
@@ -29,8 +27,21 @@ def wav_converter(filepath):
     return song
 
 def read(path):
-    with open(path, encoding='utf-8-sig') as file:
-        contents=json.loads(file.read().replace(', }','}').replace(']\n\t"decorations"','],\n\t"decorations"').replace('],\n}',']\n}').replace(',,',',').replace('}\n\t\t{','},\n\t\t{').replace('},\n\t]','}\n\t]').replace(',  }','}'))
+    cor={
+        ", }": "}",
+        ",  }": "}",
+        "]\n\t\"decorations\"": "],\n\t\"decorations\"",
+        "],\n}": "]\n}",
+        ",,": ",",
+        "}\n\t\t{":"},\n\t\t{",
+        "},\n\t]": "}\n\t]"
+    }
+    f=open(path, encoding='utf-8-sig')
+    contents=f.read()
+    # 把adofai文件里的json语法错误改掉
+    for c in cor:
+        contents=contents.replace(c,cor[c])
+    contents=json.loads(contents)
     if 'pathData' in contents:
         pathData=list(contents['pathData'])
         angleData=[pathDatatrans[i] for i in pathData]
